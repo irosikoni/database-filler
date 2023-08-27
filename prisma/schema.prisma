@@ -1,11 +1,88 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model Category {
+  id             Int        @id @default(autoincrement())
+  name           String
+  recipes        Recipe[]
+  image          String?
+  parentId       Int?
+  parentCategory Category?  @relation("SubCategory", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subCategories  Category[] @relation("SubCategory")
+
+  @@index([parentId])
+}
+
+model Recipe {
+  id          Int          @id @default(autoincrement())
+  title       String
+  description String
+  ingredients Ingredient[]
+  preparation String
+  advises     String?
+  image       String?
+  categoryId  Int
+  category    Category     @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime     @default(now())
+  lastUpdate  DateTime     @updatedAt
+  reviews     Review[]
+
+  @@index([categoryId])
+}
+
+model DietType {
+  id               Int            @id @default(autoincrement())
+  name             String
+  baseIngredient   BaseIngredient @relation(fields: [baseIngredientId], references: [id])
+  baseIngredientId Int
+
+  @@index([baseIngredientId])
+}
+
+model BaseIngredient {
+  id                       Int          @id @default(autoincrement())
+  name                     String
+  ingredients              Ingredient[]
+  specialProductCategories DietType[]
+}
+
+model Ingredient {
+  id               Int             @id @default(autoincrement())
+  name             String
+  amount           Int
+  unit             String
+  recipe           Recipe          @relation(fields: [recipeId], references: [id])
+  recipeId         Int
+  baseIngredient   BaseIngredient? @relation(fields: [baseIngredientId], references: [id])
+  baseIngredientId Int?
+
+  @@index([recipeId])
+  @@index([baseIngredientId])
+}
+
+model Reviewer {
+  id      Int      @id @default(autoincrement())
+  nick    String
+  email   String   @unique
+  Reviews Review[]
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  text       String
+  rating     Int
+  reviewerId Int
+  reviewer   Reviewer @relation(fields: [reviewerId], references: [id])
+  recipeId   Int
+  recipe     Recipe   @relation(fields: [recipeId], references: [id])
+
+  @@index([reviewerId])
+  @@index([recipeId])
 }
