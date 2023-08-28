@@ -22,7 +22,7 @@ model Category {
 
 model Recipe {
   id          Int          @id @default(autoincrement())
-  title       String
+  title       String        @unique
   description String
   ingredients Ingredient[]
   preparation String
@@ -39,7 +39,7 @@ model Recipe {
 
 model DietType {
   id               Int            @id @default(autoincrement())
-  name             String
+  name             String         @unique
   baseIngredient   BaseIngredient @relation(fields: [baseIngredientId], references: [id])
   baseIngredientId Int
 
@@ -48,7 +48,7 @@ model DietType {
 
 model BaseIngredient {
   id                       Int          @id @default(autoincrement())
-  name                     String
+  name                     String       @unique
   ingredients              Ingredient[]
   specialProductCategories DietType[]
 }
