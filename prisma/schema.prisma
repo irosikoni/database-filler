@@ -22,7 +22,7 @@ model Category {
 
 model Recipe {
   id          Int          @id @default(autoincrement())
-  title       String        @unique
+  title       String       @unique
   description String
   ingredients Ingredient[]
   preparation String
@@ -38,33 +38,40 @@ model Recipe {
 }
 
 model DietType {
-  id               Int            @id @default(autoincrement())
-  name             String         @unique
-  baseIngredient   BaseIngredient @relation(fields: [baseIngredientId], references: [id])
-  baseIngredientId Int
-
-  @@index([baseIngredientId])
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  products Product[]
 }
 
-model BaseIngredient {
-  id                       Int          @id @default(autoincrement())
-  name                     String       @unique
-  ingredients              Ingredient[]
-  specialProductCategories DietType[]
+// model DietOnProduct {
+//   dietType   DietType @relation(fields: [dietTypeId], references: [id])
+//   dietTypeId Int
+//   product    Product  @relation(fields: [productId], references: [id])
+//   productId  Int
+
+//   @@id([dietTypeId, productId])
+//   @@index([dietTypeId])
+//   @@index([productId])
+// }
+
+model Product {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  ingredients Ingredient[]
+  dietType    DietType[]
 }
 
 model Ingredient {
-  id               Int             @id @default(autoincrement())
-  name             String
-  amount           Int
-  unit             String
-  recipe           Recipe          @relation(fields: [recipeId], references: [id])
-  recipeId         Int
-  baseIngredient   BaseIngredient? @relation(fields: [baseIngredientId], references: [id])
-  baseIngredientId Int?
+  id        Int     @id @default(autoincrement())
+  amount    Int
+  unit      String
+  recipe    Recipe  @relation(fields: [recipeId], references: [id])
+  recipeId  Int
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
 
   @@index([recipeId])
-  @@index([baseIngredientId])
+  @@index([productId])
 }
 
 model Reviewer {

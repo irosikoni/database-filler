@@ -1,9 +1,22 @@
 import { prisma } from "../../lib/prisma";
 import { NextResponse } from "next/server";
+import { z } from "zod";
+
+const ingredientSchema = z.object({
+  name: z.string(),
+  amount: z.number(),
+  unit: z.string(),
+});
+
+const receipeSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  ingredients: z.array(ingredientSchema),
+});
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const body = receipeSchema.parse(await request.json());
     const recipe = await prisma.recipe.upsert({
       where: { title: body.title },
       update: {},
@@ -11,22 +24,19 @@ export async function POST(request: Request) {
         title: body.title,
         description: body.description,
         ingredients: {
-          createMany: {
-            data: body.ingredients.map((ingredient) => ({
-              name: ingredient.name,
-              amount: ingredient.amount,
-              unit: ingredient.unit,
-              connect: {
-                id: ingredient.recipeId,
-                baseIngredientId: ingredient.baseIngredientId,
-              },
-              upsert: {
-                where: {},
-                update: {},
-                create: {},
-              },
-            })),
-          },
+          create: body.ingredients.map((ingredient) => ({
+            amount: ingredient.amount,
+            unit: ingredient.unit,
+            connect: {
+              id: ingredient.recipeId,
+              baseIngredientId: ingredient.baseIngredientId,
+            },
+            upsert: {
+              where: {},
+              update: {},
+              create: {},
+            },
+          })),
         },
         preparation: body.preparation,
         advises: body.advises ? body.advises : null,
