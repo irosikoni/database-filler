@@ -1,22 +1,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+@import url(//fonts.googleapis.com/earlyaccess/jejuhallasan.css);
 :root {
+  font-family: "Jeju Hallasan", sans-serif;
   --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+  --background-start-rgb: 251, 240, 248;
+  --background-end-rgb: 251, 240, 248;
 }
 
 body {
+  font-family: "Jeju Hallasan", sans-serif;
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
       to bottom,

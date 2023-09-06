@@ -23,65 +23,70 @@ const receipeSchema = z.object({
   category: z.string(),
 });
 
-export async function POST(request: Request) {
-  try {
-    const body = receipeSchema.parse(await request.json());
-    const recipe = await prisma.recipe.upsert({
-      where: { title: body.title },
-      update: {},
-      create: {
-        title: body.title,
-        description: body.description,
-        preparation: body.preparation,
-        advises: body.advises ? body.advises : null,
-        image: body.image ? body.image : null,
-        category: {
-          connect: {
+export async function PUT(request: Request) {
+  const body = receipeSchema.parse(await request.json());
+  const recipe = await prisma.recipe.upsert({
+    where: { title: body.title },
+    update: {},
+    create: {
+      title: body.title,
+      description: body.description,
+      preparation: body.preparation,
+      advises: body.advises ? body.advises : null,
+      image: body.image ? body.image : null,
+      category: {
+        connectOrCreate: {
+          where: { name: body.category },
+          create: {
             name: body.category,
           },
         },
-        createdAt: new Date(),
-        lastUpdate: new Date(),
       },
-    });
-    body.ingredients.forEach(async (ingredient) => {
-      ingredient.product.dietType.forEach(async (dietName) => {
-        const dietType = await prisma.dietType.upsert({
-          where: { name: dietName },
-          update: {},
-          create: {
-            name: dietName,
-            products: {
-              connectOrCreate: {
-                where: { name: ingredient.product.name },
-                create: {
-                  name: ingredient.product.name,
-                },
+      createdAt: new Date(),
+      lastUpdate: new Date(),
+    },
+  });
+  console.log(recipe);
+  console.log(body.ingredients);
+  body.ingredients.forEach(async (ingredient) => {
+    ingredient.product.dietType.forEach(async (dietName) => {
+      const dietType = await prisma.dietType.upsert({
+        where: { name: dietName },
+        update: {},
+        create: {
+          name: dietName,
+          products: {
+            connectOrCreate: {
+              where: { name: ingredient.product.name },
+              create: {
+                name: ingredient.product.name,
               },
             },
           },
-        });
+        },
       });
-      const ingredientType = await prisma.ingredient.create({
-        data: {
-          amount: ingredient.amount,
-          unit: ingredient.unit,
-          recipe: {
-            connect: {
-              title: body.title,
-            },
+    });
+    const ingredientType = await prisma.ingredient.create({
+      data: {
+        amount: ingredient.amount,
+        unit: ingredient.unit,
+        recipe: {
+          connect: {
+            title: body.title,
           },
-          product: {
-            connect: {
+        },
+        product: {
+          connectOrCreate: {
+            where: { name: ingredient.product.name },
+            create: {
               name: ingredient.product.name,
             },
           },
         },
-      });
+      },
     });
+    console.log(ingredientType);
+  });
 
-    return NextResponse.json(recipe);
-  } catch (error) {
-    return NextResponse.error();
-  }
+  return NextResponse.json(recipe);
 }
