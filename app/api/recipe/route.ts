@@ -1,3 +1,4 @@
+import { connect } from "http2";
 import { prisma } from "../../lib/prisma";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -69,7 +70,14 @@ export async function PUT(request: Request) {
     const ingredientType = await prisma.ingredient.create({
       data: {
         amount: ingredient.amount,
-        unit: ingredient.unit,
+        unit: {
+          connectOrCreate: {
+            where: { name: ingredient.unit },
+            create: {
+              name: ingredient.unit,
+            },
+          },
+        },
         recipe: {
           connect: {
             title: body.title,

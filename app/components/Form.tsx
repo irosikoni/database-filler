@@ -62,6 +62,7 @@ export function Form({ categories, units, ingredients, diets }: FormProps) {
               elements={categories}
               element={category}
               setActiveElement={setCategory}
+              placeholderValue="desery"
             />
           </div>
 
@@ -73,13 +74,15 @@ export function Form({ categories, units, ingredients, diets }: FormProps) {
                   elements={ingredients}
                   element={ingredient}
                   setActiveElement={setIngredient}
+                  placeholderValue="mąka"
                 />
+                <input className="w-12 m-2" placeholder="0"></input>
                 <Dropdown
                   elements={units}
                   element={unit}
                   setActiveElement={setUnit}
+                  placeholderValue="kg"
                 />
-                <input className="w-12 m-2" placeholder="0"></input>
               </div>
               <input className="w-44"></input>
               <div className="flex flex-row items-center justify-center">
